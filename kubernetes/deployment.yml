@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: Order
-          image: username/Order:latest
+          image: user001.azurecr.io/Order:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
         - name: Pay
-          image: username/Pay:latest
+          image: user001.azurecr.io/Pay:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -98,7 +98,7 @@ spec:
     spec:
       containers:
         - name: Reservation
-          image: username/Reservation:latest
+          image: user001.azurecr.io/Reservation:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -138,7 +138,7 @@ spec:
     spec:
       containers:
         - name: Notification
-          image: username/Notification:latest
+          image: user001.azurecr.io/Notification:latest
           ports:
             - containerPort: 8080
           readinessProbe:

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: Pay
-          image: username/Pay:latest
+          image: user001.azurecr.io/Pay:latest
           ports:
             - containerPort: 8080
           readinessProbe:
