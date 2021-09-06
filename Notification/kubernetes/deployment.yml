@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Notification
+  name: notification
   labels:
-    app: Notification
+    app: notification
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Notification
+      app: notification
   template:
     metadata:
       labels:
-        app: Notification
+        app: notification
     spec:
       containers:
-        - name: Notification
-          image: user001.azurecr.io/Notification:latest
+        - name: notification
+          image: user001.azurecr.io/notification:latest
           ports:
             - containerPort: 8080
           readinessProbe:

@@ -3,22 +3,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Order
+  name: order
   labels:
-    app: Order
+    app: order
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Order
+      app: order
   template:
     metadata:
       labels:
-        app: Order
+        app: order
     spec:
       containers:
-        - name: Order
-          image: user001.azurecr.io/Order:latest
+        - name: order
+          image: user001.azurecr.io/order:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -43,22 +43,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Pay
+  name: pay
   labels:
-    app: Pay
+    app: pay
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Pay
+      app: pay
   template:
     metadata:
       labels:
-        app: Pay
+        app: pay
     spec:
       containers:
-        - name: Pay
-          image: user001.azurecr.io/Pay:latest
+        - name: pay
+          image: user001.azurecr.io/pay:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -83,22 +83,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Reservation
+  name: reservation
   labels:
-    app: Reservation
+    app: reservation
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Reservation
+      app: reservation
   template:
     metadata:
       labels:
-        app: Reservation
+        app: reservation
     spec:
       containers:
-        - name: Reservation
-          image: user001.azurecr.io/Reservation:latest
+        - name: reservation
+          image: user001.azurecr.io/reservation:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -123,22 +123,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Notification
+  name: notification
   labels:
-    app: Notification
+    app: notification
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Notification
+      app: notification
   template:
     metadata:
       labels:
-        app: Notification
+        app: notification
     spec:
       containers:
-        - name: Notification
-          image: user001.azurecr.io/Notification:latest
+        - name: notification
+          image: user001.azurecr.io/notification:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -165,15 +165,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: Order
+  name: order
   labels:
-    app: Order
+    app: order
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: Order
+    app: order
 
 
 ---
@@ -182,15 +182,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: Pay
+  name: pay
   labels:
-    app: Pay
+    app: pay
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: Pay
+    app: pay
 
 
 ---
@@ -199,15 +199,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: Reservation
+  name: reservation
   labels:
-    app: Reservation
+    app: reservation
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: Reservation
+    app: reservation
 
 
 ---
@@ -216,13 +216,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: Notification
+  name: notification
   labels:
-    app: Notification
+    app: notification
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: Notification
+    app: notification
 
