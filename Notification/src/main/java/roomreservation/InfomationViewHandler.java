@@ -83,6 +83,15 @@ public class InfomationViewHandler {
                 // view 객체 조회
 
                     List<Infomation> infomationList = infomationRepository.findByOrderId(ordered.getorderId());
+                    // Ordered가 먼저 호출 된 경우 
+                    if(infomationList.size() == 0){
+                        Infomation infomation = new Infomation();
+                         // view 객체에 이벤트의 Value 를 set 함
+                        infomation.setOrderId(ordered.getorderId());
+                        infomation.setOrderStatus(ordered.getStatus());
+                        // view 레파지 토리에 save
+                        infomationRepository.save(infomation);
+                    }
                     for(Infomation infomation : infomationList){
                     // view 객체에 이벤트의 eventDirectValue 를 set 함
                     infomation.setOrderStatus(ordered.getStatus());

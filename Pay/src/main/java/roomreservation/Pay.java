@@ -17,8 +17,8 @@ public class Pay {
     private Long cardNo;
     private String status;
     private Long roomNo;
-    @PostPersist
-    public void onPostPersist(){
+    @PrePersist
+    public void onPrePersist(){
         Paid paid = new Paid();
         BeanUtils.copyProperties(this, paid);
         // System.out.println("######################################################");
@@ -27,7 +27,7 @@ public class Pay {
         // System.out.println("######################################################");
         // System.out.println("######################################################");
         paid.setStatus("Paid");
-        paid.publishAfterCommit();
+        paid.publish();
 
     }
     @PostUpdate
