@@ -21,6 +21,18 @@ public class Order {
 
     @PostPersist
     public void onPostPersist(){
+
+        String location = System.getenv("LOCATION");
+        if(location == null) location = "LOCAL";
+        System.out.println("######################################################################################");
+        System.out.println("#################################ConfigMap############################################");
+        System.out.println("######################################################################################");
+        System.out.println("######################################################################################");
+        System.out.println("########################CURRENT_LOCATION = "+location+"###############################");
+        System.out.println("######################################################################################");
+        System.out.println("######################################################################################");
+        System.out.println("#################################ConfigMap############################################");
+        System.out.println("######################################################################################");
         Ordered ordered = new Ordered();
         BeanUtils.copyProperties(this, ordered);
         ordered.setStatus("Ordered");

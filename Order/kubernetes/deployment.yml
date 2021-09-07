@@ -19,6 +19,12 @@ spec:
           image: user001.azurecr.io/order:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: applocation
+                  key: applocationvalue
           readinessProbe:
             httpGet:
               path: '/actuator/health'
