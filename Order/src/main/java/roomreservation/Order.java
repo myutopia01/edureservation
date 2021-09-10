@@ -39,17 +39,19 @@ public class Order {
         ordered.publishAfterCommit();
         //Following code causes dependency to external APIs
         // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
+        System.out.println("######################################11111111#########################################");
         roomreservation.external.Pay pay = new roomreservation.external.Pay();
+        System.out.println("######################################22222222#########################################");
         pay.setCardNo(this.cardNo);
         pay.setCustomerId(this.customerId);
         pay.setOrderId(this.orderId);
         pay.setStatus("Pay Request");
         pay.setRoomNo(this.roomNo);
-
+        System.out.println("######################################33333333#########################################");
         // mappings goes here
         OrderApplication.applicationContext.getBean(roomreservation.external.PayService.class)
             .payment(pay);
+            System.out.println("######################################444444444#########################################");
     }
     
     @PostUpdate

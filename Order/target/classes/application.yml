@@ -39,7 +39,7 @@ logging:
 server:
   port: 8081
 api:
-  Pay:
+  pay:
     url: http://localhost:8082
 
 feign:
@@ -75,5 +75,12 @@ spring:
           destination: roomreservation
           contentType: application/json
 api:
-  Pay:
+  pay:
     url: http://pay:8080
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610

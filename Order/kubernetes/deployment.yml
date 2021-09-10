@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: user001.azurecr.io/order:latest
+          image: user001.azurecr.io/order:v1
           ports:
             - containerPort: 8080
           env:
@@ -25,6 +25,11 @@ spec:
                 configMapKeyRef:
                   name: applocation
                   key: applocationvalue
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
           readinessProbe:
             httpGet:
               path: '/actuator/health'

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Date;
 
-@FeignClient(name="Pay", url="${api.Pay.url}", fallback = PayServiceImpl.class)
+@FeignClient(name="Pay", url="${api.pay.url}", fallback = PayServiceImpl.class)
 public interface PayService {
     @RequestMapping(method= RequestMethod.POST, path="/pays")
     public void payment(@RequestBody Pay pay);
