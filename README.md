@@ -125,10 +125,10 @@
 ![image](https://user-images.githubusercontent.com/66100487/134459708-dd6a848c-2224-418e-9a80-f9e3822d9db8.png)
 
 ### 부적격 이벤트 탈락
-![image](https://user-images.githubusercontent.com/487999/79683612-4b4f8880-8266-11ea-9519-7e084524a462.png)
+![image](https://user-images.githubusercontent.com/66100487/134459834-23bf1116-598e-4df1-811a-02aee4312b99.png)
 
     - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
-        - 주문시>메뉴카테고리선택됨, 주문시>메뉴검색됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
+        - 신청시>교육이 신청됨, 결제 버튼이 클릭됨, 예약시>예약내역이 전달됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
 
 ### 액터, 커맨드 부착하여 읽기 좋게
 ![image](https://user-images.githubusercontent.com/487999/79683614-4ee30f80-8266-11ea-9a50-68cdff2dcc46.png)
