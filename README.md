@@ -1,12 +1,7 @@
 ![edu](https://user-images.githubusercontent.com/66100487/134440393-d317efa3-2c58-4591-b66d-b37fb70fba75.png)
 
 
-# 예제 - 음식배달
-
-본 예제는 MSA/DDD/Event Storming/EDA 를 포괄하는 분석/설계/구현/운영 전단계를 커버하도록 구성한 예제입니다.
-이는 클라우드 네이티브 애플리케이션의 개발에 요구되는 체크포인트들을 통과하기 위한 예시 답안을 포함합니다.
-- 체크포인트 : https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
-
+# 교육 신청 사이트
 
 # Table of contents
 
