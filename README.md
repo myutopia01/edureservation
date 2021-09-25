@@ -262,25 +262,21 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 ```
 
 적용 후 API TEST
-
 ![image](https://user-images.githubusercontent.com/66100487/134758714-7e61874d-9662-42ec-ad6e-65b0fef9f2ab.png)
 
 Order 서비스의 주문처리
-
 ![image](https://user-images.githubusercontent.com/66100487/134758665-eb98193c-d847-4a34-9950-3019a470ccc5.png)
 
 주문 상태 확인
-
 ![image](https://user-images.githubusercontent.com/66100487/134758685-c4f2f50c-68a6-46b5-90bf-09ee730c12e0.png)
 
 View 확인
-
 ![image](https://user-images.githubusercontent.com/66100487/134758721-510a3f5a-1b60-48fd-94b0-1257420f6111.png)
 
 
 ## 폴리글랏 퍼시스턴스
 
-·	Order 서비스의 로컬 DB를 기존 h2에서 hsqldb로 변경후에도 잘 동작함을 확인
+- Order 서비스의 로컬 DB를 기존 h2에서 hsqldb로 변경후에도 잘 동작함을 확인
 
 ```
 <!—기존 DB
@@ -462,7 +458,10 @@ http http://20.200.206.197:8080/infomations		#예약됨을 확인
 ## CI/CD 설정
 
 
-각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 GCP를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
+각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 Azure를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 kubernetes 폴더의 deployment.yml 에 포함되었다.
+
+azure Devops의 pipeline에 각각의 서비스에 대한 CI/CD 생성 후, Github에서 코드가 업데이트 될때마다 자동으로 빌드/배포된다.
+![image](https://user-images.githubusercontent.com/66100487/134759162-468214ff-8d56-4842-801b-b34d590c256b.png)
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
@@ -643,38 +642,28 @@ Shortest transaction:	        0.00
 ### 오토스케일 아웃
 앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
 
-
-- 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
+- 예약서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
 kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
 ```
-- CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
+- CB 에서 했던 방식대로 워크로드를 1분 동안 걸어준다.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
+- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
+```
+watch kubectl get pod
+```
+![image](https://user-images.githubusercontent.com/66100487/134759307-6384988b-c09d-4cac-9c9e-b59361f8cae4.png)
 ```
 kubectl get deploy pay -w
 ```
-- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
-```
-NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-pay     1         1         1            1           17s
-pay     1         2         1            1           45s
-pay     1         4         1            1           1m
-:
-```
+![image](https://user-images.githubusercontent.com/66100487/134759331-9b4e8334-82a3-469e-b0dd-a85918b47f1b.png)
+
 - siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
-```
-Transactions:		        5078 hits
-Availability:		       92.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-```
+![image](https://user-images.githubusercontent.com/66100487/134759380-4574d609-665d-4200-a2ef-35bf4f164584.png)
+
 
 
 ## 무정지 재배포
@@ -683,19 +672,9 @@ Concurrency:		       96.02
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
-
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
-The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-:
-
+siege -c1 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
 ```
+
 
 - 새버전으로의 배포 시작
 ```
@@ -703,40 +682,24 @@ kubectl set image ...
 ```
 
 - seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
-```
-Transactions:		        3078 hits
-Availability:		       70.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
+배포중 서비스 중단이 발생하여 Availability가 99% 임을 확인.
+![image](https://user-images.githubusercontent.com/66100487/134759591-a84814c0-961b-4369-8e5a-391cbcd413c5.png)
+![image](https://user-images.githubusercontent.com/66100487/134759594-bef2688f-3c2d-4535-8ff4-55f9c031a2e5.png)
 
-```
-배포기간중 Availability 가 평소 100%에서 70% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
+- deployment.yml에 readinessProbe, livenessProbe 설정
+![image](https://user-images.githubusercontent.com/66100487/134759599-e12e2f99-92f7-48d4-97ba-479a9f29159f.png)
+![image](https://user-images.githubusercontent.com/66100487/134759572-1c3c30b7-2518-48bd-ba8b-71d782cf16f7.png)
 
-```
-# deployment.yaml 의 readiness probe 의 설정:
-
-
-kubectl apply -f kubernetes/deployment.yaml
-```
-
-- 동일한 시나리오로 재배포 한 후 Availability 확인:
-```
-Transactions:		        3078 hits
-Availability:		       100 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-
-```
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
+
+
+## Livenewss
+Pod의 상태가 비정상인 경우 재시작하는지 확인하기 위해 liveness 포트를 사용하지 않는 포트(8088)로 설정 후 배포
+![image](https://user-images.githubusercontent.com/66100487/134759647-27dffbc0-f9a9-4070-9b52-e51ce2f55f50.png)
+
+해당포트로는 서비스 확인이 불가능하므로 RESTART 횟수가 늘어나고 있음을 확인
+![image](https://user-images.githubusercontent.com/66100487/134759658-92d9d522-72e5-4017-8140-93b42098d6f1.png)
 
 
 # 신규 개발 조직의 추가
