@@ -463,7 +463,7 @@ azure Devops의 pipeline에 각각의 서비스에 대한 CI/CD 생성 후, Gith
 ![image](https://user-images.githubusercontent.com/66100487/134759162-468214ff-8d56-4842-801b-b34d590c256b.png)
 
 
-## 동기식 호출/서킷 브레이킹/장애격리
+## 동기식-호출-서킷-브레이킹-장애격리
 
 * 서킷 브레이킹 프레임워크의 선택: Spring FeignClient + Hystrix 옵션을 사용하여 구현함
 
