@@ -146,8 +146,8 @@
         - 예약 -> 결제 -> 예약관리 순으로 정의
 
 ### 폴리시 부착 (괄호는 수행주체, 폴리시 부착을 둘째단계에서 해놔도 상관 없음. 전체 연계가 초기에 드러남)
+![image](https://user-images.githubusercontent.com/66100487/134758474-ec6ed571-b21f-4350-ad34-76ca0215b3c3.png)
 
-![image](https://user-images.githubusercontent.com/487999/79683633-5aced180-8266-11ea-8f42-c769eb88dfb1.png)
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 ![image](https://user-images.githubusercontent.com/66100487/134758330-d26e00f8-c667-4ad2-ad02-3878c2de196a.png)
