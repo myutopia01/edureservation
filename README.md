@@ -262,15 +262,19 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 ```
 
 적용 후 API TEST
+
 ![image](https://user-images.githubusercontent.com/66100487/134758714-7e61874d-9662-42ec-ad6e-65b0fef9f2ab.png)
 
 Order 서비스의 주문처리
+
 ![image](https://user-images.githubusercontent.com/66100487/134758665-eb98193c-d847-4a34-9950-3019a470ccc5.png)
 
 주문 상태 확인
+
 ![image](https://user-images.githubusercontent.com/66100487/134758685-c4f2f50c-68a6-46b5-90bf-09ee730c12e0.png)
 
 View 확인
+
 ![image](https://user-images.githubusercontent.com/66100487/134758721-510a3f5a-1b60-48fd-94b0-1257420f6111.png)
 
 
@@ -280,23 +284,22 @@ View 확인
 
 ```
 <!—기존 DB
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.4.0</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
-
+<dependency>
+	<groupId>com.h2database</groupId>
+	<artifactId>h2</artifactId>
+	<scope>runtime</scope>
+</dependency>
+-->
+<dependency>
+	<groupId>org.hsqldb</groupId>
+	<artifactId>hsqldb</artifactId>
+	<version>2.4.0</version>
+	<scope>runtime</scope>
+</dependency>
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
 ```
 
 
@@ -349,7 +352,8 @@ public interface PayService {
 
 ```
 # 결제(pay) 서비스를 잠시 내려 놓음 (kubectl delete svc, deploy pay)
-#Fallback 처리 전 주문 처리: 결제 시스템 장애 시 주문이 되지 않음을 확인
+
+# Fallback 처리 전 주문 처리: 결제 시스템 장애 시 주문이 되지 않음을 확인
 http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1111	#Fail
 http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1112	#Fail
 
@@ -437,16 +441,20 @@ http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest
 http http://20.200.206.197:8080/infomations
 
 # 주문과 결제는 되었으나 예약되지 않음을 확인
+```
 ![image](https://user-images.githubusercontent.com/66100487/134759028-58dc0d2a-199f-4593-9b85-d495f33e83ea.png)
 
-
+```
 # 예약 관리서비스 기동 후 주문 상태 확인 (kafka에서 주문/결제 이벤트 수신 후 예약 처리 됨)
+```
 ![image](https://user-images.githubusercontent.com/66100487/134759038-8487aba3-44f6-4902-bd6a-b3afd7ea7ef9.png)
 
+```
 # 주문 상태 확인 
 http http://20.200.206.197:8080/infomations		#예약됨을 확인
-![image](https://user-images.githubusercontent.com/66100487/134759044-265801c8-d674-4457-8c77-ecf18be4eb76.png)
 ```
+![image](https://user-images.githubusercontent.com/66100487/134759044-265801c8-d674-4457-8c77-ecf18be4eb76.png)
+
 
 
 # 운영
