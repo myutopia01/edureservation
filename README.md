@@ -20,7 +20,6 @@
     - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
     - [오토스케일 아웃](#오토스케일-아웃)
     - [무정지 재배포](#무정지-재배포)
-  - [신규 개발 조직의 추가](#신규-개발-조직의-추가)
 
 # 서비스 시나리오
 
@@ -455,7 +454,7 @@ http http://20.200.206.197:8080/infomations		#예약됨을 확인
 
 # 운영
 
-## CI/CD 설정
+## cicd설정
 
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 Azure를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 kubernetes 폴더의 deployment.yml 에 포함되었다.
@@ -464,7 +463,7 @@ azure Devops의 pipeline에 각각의 서비스에 대한 CI/CD 생성 후, Gith
 ![image](https://user-images.githubusercontent.com/66100487/134759162-468214ff-8d56-4842-801b-b34d590c256b.png)
 
 
-## 동기식 호출 / 서킷 브레이킹 / 장애격리
+## 동기식 호출/서킷 브레이킹/장애격리
 
 * 서킷 브레이킹 프레임워크의 선택: Spring FeignClient + Hystrix 옵션을 사용하여 구현함
 
