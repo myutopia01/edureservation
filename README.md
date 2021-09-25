@@ -368,7 +368,7 @@ http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest
 
 
 
-## 비동기식-호출-과-Eventual-Consistency
+## 비동기식 호출과 Eventual Consistency
 
 
 결제가 이루어진 후에 예약관리 시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 예약관리 시스템의 처리를 위하여 결제주문이 블로킹 되지 않아도록 처리한다.
