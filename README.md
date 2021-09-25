@@ -214,7 +214,7 @@ mvn spring-boot:run
 - order 마이크로 서비스
 
 ```
-package roomreservation;
+package edureservation;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
@@ -229,7 +229,7 @@ public class Order {
     private Long id;
     private Long orderId;
     private Long customerId;
-    private Long roomNo;
+    private Long eduNo;
     private Long cardNo;
     private Integer guest;
     private String status;
@@ -240,7 +240,7 @@ public class Order {
         BeanUtils.copyProperties(this, ordered);
         ordered.setStatus("Ordered");
         ordered.publishAfterCommit();
-        roomreservation.external.Pay pay = new roomreservation.external.Pay();
+        edureservation.external.Pay pay = new edureservation.external.Pay();
         pay.setCardNo(this.cardNo);
         pay.setCustomerId(this.customerId);
         pay.setOrderId(this.orderId);
@@ -249,7 +249,7 @@ public class Order {
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
-package roomreservation;
+package edureservation;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -305,7 +305,7 @@ View 확인
 
 - 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 ```
-package roomreservation.external;
+package edureservation.external;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -330,15 +330,15 @@ public interface PayService {
         ordered.setStatus("Ordered");
         ordered.publishAfterCommit();
     
-        roomreservation.external.Pay pay = new roomreservation.external.Pay();
+        edureservation.external.Pay pay = new edureservation.external.Pay();
         pay.setCardNo(this.cardNo);
         pay.setCustomerId(this.customerId);
         pay.setOrderId(this.orderId);
         pay.setStatus("Pay Request");
-        pay.setRoomNo(this.roomNo);
+        pay.seteduNo(this.eduNo);
 
         // mappings goes here
-        OrderApplication.applicationContext.getBean(roomreservation.external.PayService.class)
+        OrderApplication.applicationContext.getBean(edureservation.external.PayService.class)
             .payment(pay);
     }
 ```
@@ -350,11 +350,11 @@ public interface PayService {
 # 결제(pay) 서비스를 잠시 내려 놓음 (kubectl delete svc, deploy pay)
 
 # Fallback 처리 전 주문 처리: 결제 시스템 장애 시 주문이 되지 않음을 확인
-http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1111	#Fail
-http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1112	#Fail
+http http://20.200.206.197:8080/orders customerId=1 eduNo=101 cardNo=1234 guest=1 status=ordered orderId=1111	#Fail
+http http://20.200.206.197:8080/orders customerId=1 eduNo=101 cardNo=1234 guest=1 status=ordered orderId=1112	#Fail
 
 # Fallback 처리 후 주문 처리: fallback으로 주문은 정상적으로 접수되고, 결제 지연에 대한 오류처리 확인
-http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1113#OrderSuccess
+http http://20.200.206.197:8080/orders customerId=1 eduNo=101 cardNo=1234 guest=1 status=ordered orderId=1113#OrderSuccess
 
 # Fallback처리 Message확인
 ![image](https://user-images.githubusercontent.com/66100487/134758894-938f4ddf-2021-4399-8e8d-ab0e0272d064.png)
@@ -376,7 +376,7 @@ http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest
 - 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
 ```
-package roomreservation;
+package edureservation;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
@@ -394,7 +394,7 @@ public class Pay {
     private Long customerId;
     private Long cardNo;
     private String status;
-    private Long roomNo;
+    private Long eduNo;
     @PrePersist
     public void onPrePersist(){
         Paid paid = new Paid();
@@ -420,7 +420,7 @@ public class PolicyHandler{
         Reservation reservation = new Reservation();
         reservation.setStatus("Reservation Confirmed");
         reservation.setOrderId(paid.getOrderId());
-        reservation.setRoomNo(paid.getRoomNo());
+        reservation.setEduNo(paid.getEduNo());
         reservationRepository.save(reservation);
 
     }
@@ -431,7 +431,7 @@ public class PolicyHandler{
 # 예약관리시스템(Reservation)을 잠시 내려둠 (kubectl delete deploy,svc reservation)
 
 # 주문처리 : 주문됨을 확인
-http http://20.200.206.197:8080/orders customerId=1 roomNo=101 cardNo=1234 guest=1 status=ordered orderId=1114
+http http://20.200.206.197:8080/orders customerId=1 EduNo=101 cardNo=1234 guest=1 status=ordered orderId=1114
 
 # 주문 상태 확인 
 http http://20.200.206.197:8080/infomations
@@ -489,7 +489,7 @@ azure Devops의 pipeline에 각각의 서비스에 대한 CI/CD 생성 후, Gith
 - 60초 동안 실시
 
 ```
-$ siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
+$ siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "eduNo": 102}'
 ** SIEGE 4.0.4
 ** Preparing 70 concurrent users for battle.
 The server is now under siege...
@@ -565,7 +565,7 @@ kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
 ```
 - CB 에서 했던 방식대로 워크로드를 1분 동안 걸어준다.
 ```
-siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
+siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "eduNo": 102}'
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
@@ -589,7 +589,7 @@ kubectl get deploy pay -w
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c1 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
+siege -c1 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "eduNo": 102}'
 ```
 
 
