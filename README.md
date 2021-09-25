@@ -473,170 +473,87 @@ azure Devops의 pipeline에 각각의 서비스에 대한 CI/CD 생성 후, Gith
 - Hystrix 를 설정:  요청처리 쓰레드에서 처리시간이 610 밀리가 넘어서기 시작하여 어느정도 유지되면 CB 회로가 닫히도록 (요청을 빠르게 실패처리, 차단) 설정
 ```
 # application.yml
-
-hystrix:
-  command:
-    # 전역설정
-    default:
-      execution.isolation.thread.timeoutInMilliseconds: 610
-
 ```
+![image](https://user-images.githubusercontent.com/66100487/134759933-fa31cd25-023d-4f6f-af9b-44ec6c8b020a.png)
+
 
 - 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
 ```
 # (pay) 결제이력.java (Entity)
-
-    @PrePersist
-    public void onPrePersist(){  //결제이력을 저장한 후 적당한 시간 끌기
-
-        ...
-        
-        try {
-            Thread.currentThread().sleep((long) (400 + Math.random() * 220));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 ```
+![image](https://user-images.githubusercontent.com/66100487/134759959-ee354fd8-07c1-4691-b6f5-bce56b34754b.png)
+
 
 * 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
-- 동시사용자 100명
+- 동시사용자 70명
 - 60초 동안 실시
 
 ```
-$ siege -c100 -t60S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
-
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
+$ siege -c70 -t60S -v --content-type "application/json" 'http://10.0.247.8:8080/orders POST {"orderId": 2, "roomNo": 102}'
+** SIEGE 4.0.4
+** Preparing 70 concurrent users for battle.
 The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.73 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.75 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.77 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.97 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.81 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.87 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.12 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.16 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.17 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.26 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.25 secs:     207 bytes ==> POST http://localhost:8081/orders
-
+HTTP/1.1 201     1.84 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201     2.32 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201     2.90 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201     3.36 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201     3.87 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201     4.33 secs:     268 bytes ==> POST http://10.0.247.8:8080/orders
+--------------------------------------------------------------------------------
 * 요청이 과도하여 CB를 동작함 요청을 차단
-
-HTTP/1.1 500     1.29 secs:     248 bytes ==> POST http://localhost:8081/orders   
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.42 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     2.08 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.29 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
-
-* 요청을 어느정도 돌려보내고나니, 기존에 밀린 일들이 처리되었고, 회로를 닫아 요청을 다시 받기 시작
-
-HTTP/1.1 201     1.46 secs:     207 bytes ==> POST http://localhost:8081/orders  
-HTTP/1.1 201     1.33 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.36 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.63 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.79 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-* 다시 요청이 쌓이기 시작하여 건당 처리시간이 610 밀리를 살짝 넘기기 시작 => 회로 열기 => 요청 실패처리
-
-HTTP/1.1 500     1.93 secs:     248 bytes ==> POST http://localhost:8081/orders    
-HTTP/1.1 500     1.92 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.93 secs:     248 bytes ==> POST http://localhost:8081/orders
-
-* 생각보다 빨리 상태 호전됨 - (건당 (쓰레드당) 처리시간이 610 밀리 미만으로 회복) => 요청 수락
-
-HTTP/1.1 201     2.24 secs:     207 bytes ==> POST http://localhost:8081/orders  
-HTTP/1.1 201     2.32 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.16 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.21 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.29 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.30 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.38 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.59 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.61 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.62 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.64 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.01 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.27 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.33 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.45 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.52 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.57 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-* 이후 이러한 패턴이 계속 반복되면서 시스템은 도미노 현상이나 자원 소모의 폭주 없이 잘 운영됨
-
-
-HTTP/1.1 500     4.76 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.82 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.82 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.84 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.66 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     5.03 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.22 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.19 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.18 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     5.13 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.84 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.80 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.87 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.33 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.86 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.96 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.34 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.04 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.50 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.95 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.54 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-
-:
-:
-
-Transactions:		        1025 hits
-Availability:		       63.55 %
+HTTP/1.1 500    30.60 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500    30.61 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500    30.63 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500    30.63 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500    30.63 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500    30.61 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+* 요청을 어느정도 돌려보내고 나니, 기존에 밀린 일들이 처리되었고, 회로를 닫아 요청을 다시 받기 시작
+HTTP/1.1 201    31.13 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    31.62 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    32.20 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+--------------------------------------------------------------------------------
+* 다시 요청이 쌓여 건당 처리 시간이 610 밀리를 살짝 넘김 → 회로 열기 → 요청 실패 처리 
+HTTP/1.1 500    30.04 secs:     271 bytes ==> POST http://10.0.247.8:8080/orders
+* 상태 호전됨 - (건당 (쓰레드당) 처리 시간이 610 밀리 미만으로 회복) → 요청 수락
+HTTP/1.1 201    33.89 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    33.80 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+--------------------------------------------------------------------------------
+HTTP/1.1 201    31.69 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    31.60 secs:     270 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.04 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    31.01 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.91 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.02 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.85 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.74 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.02 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.76 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.78 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.03 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.76 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.71 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.03 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.83 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.88 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 500     1.02 secs:     193 bytes ==> POST http://10.0.247.8:8080/orders
+HTTP/1.1 201    30.85 secs:     272 bytes ==> POST http://10.0.247.8:8080/orders
+* 이러한 패턴이 계속 반복되면서 시스템은 도미노 현상이나 자원 소모의 폭주 없이 잘 운영됨
+Lifting the server siege...
+Transactions:		         110 hits
+Availability:		       86.61 %
 Elapsed time:		       59.78 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-Successful transactions:        1025
-Failed transactions:	         588
-Longest transaction:	        9.20
-Shortest transaction:	        0.00
-
+Data transferred:	        0.03 MB
+Response time:		       27.41 secs
+Transaction rate:	        1.84 trans/sec
+Throughput:		        0.00 MB/sec
+Concurrency:		       50.43
+Successful transactions:         110
+Failed transactions:	          17
+Longest transaction:	       35.62
+Shortest transaction:	        1.02
 ```
-- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 하지만, 63.55% 가 성공하였고, 46%가 실패했다는 것은 고객 사용성에 있어 좋지 않기 때문에 Retry 설정과 동적 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
+- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 하지만, 63.55% 가 성공하였고, 46.45%가 실패했다는 것은 고객 사용성에 있어 좋지 않기 때문에 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
 
-- Retry 의 설정 (istio)
 - Availability 가 높아진 것을 확인 (siege)
 
 ### 오토스케일 아웃
@@ -666,7 +583,7 @@ kubectl get deploy pay -w
 
 
 
-## 무정지 재배포
+## 무정지 재배포(Readyness)
 
 * 먼저 무정지 재배포가 100% 되는 것인지 확인하기 위해서 Autoscaler 이나 CB 설정을 제거함
 
@@ -694,7 +611,7 @@ kubectl set image ...
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
 
 
-## Livenewss
+## Liveness
 Pod의 상태가 비정상인 경우 재시작하는지 확인하기 위해 liveness 포트를 사용하지 않는 포트(8088)로 설정 후 배포
 ![image](https://user-images.githubusercontent.com/66100487/134759647-27dffbc0-f9a9-4070-9b52-e51ce2f55f50.png)
 
@@ -702,68 +619,34 @@ Pod의 상태가 비정상인 경우 재시작하는지 확인하기 위해 live
 ![image](https://user-images.githubusercontent.com/66100487/134759658-92d9d522-72e5-4017-8140-93b42098d6f1.png)
 
 
-# 신규 개발 조직의 추가
+## ConfigMap 적용
 
-  ![image](https://user-images.githubusercontent.com/487999/79684133-1d6c4300-826a-11ea-94a2-602e61814ebf.png)
+·deployment.yml에 파일 설정
+![image](https://user-images.githubusercontent.com/66100487/134759861-ae4037dd-3749-4179-bccd-132b944ebd8c.png)
 
-
-## 마케팅팀의 추가
-    - KPI: 신규 고객의 유입률 증대와 기존 고객의 충성도 향상
-    - 구현계획 마이크로 서비스: 기존 customer 마이크로 서비스를 인수하며, 고객에 음식 및 맛집 추천 서비스 등을 제공할 예정
-
-## 이벤트 스토밍 
-    ![image](https://user-images.githubusercontent.com/487999/79685356-2b729180-8273-11ea-9361-a434065f2249.png)
+ConfigMap 생성, 정보 확인
+kubectl create configmap applocation --from-literal=applocationvalue=ACR
+Kubectl get configmap applocation -o yaml
+![image](https://user-images.githubusercontent.com/66100487/134759868-984ef90e-53a6-4c79-ae43-cf6949257aac.png)
 
 
-## 헥사고날 아키텍처 변화 
+Order.java에서 Configmap에서 설정한 value를 읽어오도록 구현
+![image](https://user-images.githubusercontent.com/66100487/134759876-3a36a70c-53cf-4d63-b975-5f79e90cfb91.png)
 
-![image](https://user-images.githubusercontent.com/487999/79685243-1d704100-8272-11ea-8ef6-f4869c509996.png)
+![image](https://user-images.githubusercontent.com/66100487/134759879-a8681f0a-fb0b-4885-8837-15d002db683c.png)
 
-## 구현  
+## PersistentVolume & PersistentVolumeClaim
+deployment.yml 내 Pod/ PersistentVolumeClaim 추가
+![image](https://user-images.githubusercontent.com/66100487/134759889-934e746c-69fd-41ea-bfd9-a40833bae9b8.png)
 
-기존의 마이크로 서비스에 수정을 발생시키지 않도록 Inbund 요청을 REST 가 아닌 Event 를 Subscribe 하는 방식으로 구현. 기존 마이크로 서비스에 대하여 아키텍처나 기존 마이크로 서비스들의 데이터베이스 구조와 관계없이 추가됨. 
+PersistentVolume 추가하지 않을 경우 상단과 같이 Pending 상태 유지
+![image](https://user-images.githubusercontent.com/66100487/134759897-96a75433-a168-4621-ad58-f3e801fb2567.png)
 
-## 운영과 Retirement
+PersistentVolume 추가
+![image](https://user-images.githubusercontent.com/66100487/134759905-0d8e2624-b62e-4c70-a770-665d29f68098.png)
 
-Request/Response 방식으로 구현하지 않았기 때문에 서비스가 더이상 불필요해져도 Deployment 에서 제거되면 기존 마이크로 서비스에 어떤 영향도 주지 않음.
+Pod/ PersistentVolumeClaim 활성화
+![image](https://user-images.githubusercontent.com/66100487/134759912-077e1eab-7e6f-405b-ad1e-a94b2f2702ff.png)
 
-* [비교] 결제 (pay) 마이크로서비스의 경우 API 변화나 Retire 시에 app(주문) 마이크로 서비스의 변경을 초래함:
+![image](https://user-images.githubusercontent.com/66100487/134759915-ad98ec0b-1373-41db-b707-b57b24485be5.png)
 
-예) API 변화시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
-
-                --> 
-
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제2(pay);
-
-    }
-```
-
-예) Retire 시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-
-        /**
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
-
-        **/
-    }
-```
