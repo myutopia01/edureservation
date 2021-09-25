@@ -20,7 +20,7 @@
     - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
     - [오토스케일 아웃](#오토스케일-아웃)
     - [무정지 재배포](#무정지-재배포)
-    - [Config map/Persistent Volume](#Config map/Persistent Volume)
+    - [Config map/Persistent Volume](#Config-map/Persistent-Volume)
 
 # 서비스 시나리오
 
@@ -619,7 +619,7 @@ Pod의 상태가 비정상인 경우 재시작하는지 확인하기 위해 live
 ![image](https://user-images.githubusercontent.com/66100487/134759658-92d9d522-72e5-4017-8140-93b42098d6f1.png)
 
 
-## Config map/Persistent Volume
+## Config-map/Persistent-Volume
 
 ·deployment.yml에 파일 설정
 ![image](https://user-images.githubusercontent.com/66100487/134759861-ae4037dd-3749-4179-bccd-132b944ebd8c.png)
