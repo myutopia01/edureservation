@@ -203,16 +203,24 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 ```
 
 적용 후 API TEST
-![image](https://user-images.githubusercontent.com/66100487/134758714-7e61874d-9662-42ec-ad6e-65b0fef9f2ab.png)
+
+![1](https://user-images.githubusercontent.com/66100487/135205552-655dce77-98c1-4793-992f-c110cf7974ac.png)
+
 
 Order 서비스의 주문처리
-![image](https://user-images.githubusercontent.com/66100487/134758665-eb98193c-d847-4a34-9950-3019a470ccc5.png)
+
+![2](https://user-images.githubusercontent.com/66100487/135205562-1a423fc0-bd6a-4711-84ea-1388af66f40b.PNG)
+
 
 주문 상태 확인
-![image](https://user-images.githubusercontent.com/66100487/134758685-c4f2f50c-68a6-46b5-90bf-09ee730c12e0.png)
+
+![3](https://user-images.githubusercontent.com/66100487/135205567-5f552a62-3914-49d8-bd90-8ecb4f59339e.PNG)
+
 
 View 확인
-![image](https://user-images.githubusercontent.com/66100487/134758721-510a3f5a-1b60-48fd-94b0-1257420f6111.png)
+
+![4](https://user-images.githubusercontent.com/66100487/135205573-484d61d8-30b9-402a-92b5-59dd521209de.PNG)
+
 
 
 ## 폴리글랏 퍼시스턴스
