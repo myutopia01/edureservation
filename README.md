@@ -525,7 +525,7 @@ watch kubectl get pod
 ```
 kubectl get deploy pay -w
 ```
-![image](https://user-images.githubusercontent.com/66100487/134759331-9b4e8334-82a3-469e-b0dd-a85918b47f1b.png)
+![image](https://user-images.githubusercontent.com/66100487/135217306-defe8958-240f-4e96-ac1d-e76c8d518259.png)
 
 - siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
 ![image](https://user-images.githubusercontent.com/66100487/134759380-4574d609-665d-4200-a2ef-35bf4f164584.png)
