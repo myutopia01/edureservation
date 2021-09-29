@@ -550,10 +550,12 @@ kubectl set image ...
 
 - seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
 배포중 서비스 중단이 발생하여 Availability가 99% 임을 확인.
+
 ![image](https://user-images.githubusercontent.com/66100487/134759591-a84814c0-961b-4369-8e5a-391cbcd413c5.png)
 ![image](https://user-images.githubusercontent.com/66100487/134759594-bef2688f-3c2d-4535-8ff4-55f9c031a2e5.png)
 
 - deployment.yml에 readinessProbe, livenessProbe 설정
+- 
 ![image](https://user-images.githubusercontent.com/66100487/134759599-e12e2f99-92f7-48d4-97ba-479a9f29159f.png)
 ![image](https://user-images.githubusercontent.com/66100487/134759572-1c3c30b7-2518-48bd-ba8b-71d782cf16f7.png)
 
@@ -563,40 +565,50 @@ kubectl set image ...
 
 ## Liveness
 Pod의 상태가 비정상인 경우 재시작하는지 확인하기 위해 liveness 포트를 사용하지 않는 포트(8088)로 설정 후 배포
+
 ![image](https://user-images.githubusercontent.com/66100487/134759647-27dffbc0-f9a9-4070-9b52-e51ce2f55f50.png)
 
 해당포트로는 서비스 확인이 불가능하므로 RESTART 횟수가 늘어나고 있음을 확인
+
 ![image](https://user-images.githubusercontent.com/66100487/134759658-92d9d522-72e5-4017-8140-93b42098d6f1.png)
 
 
 ## Config-map/Persistent-Volume
 
 ·deployment.yml에 파일 설정
+
 ![image](https://user-images.githubusercontent.com/66100487/134759861-ae4037dd-3749-4179-bccd-132b944ebd8c.png)
 
 ConfigMap 생성, 정보 확인
 kubectl create configmap applocation --from-literal=applocationvalue=ACR
 Kubectl get configmap applocation -o yaml
+
 ![image](https://user-images.githubusercontent.com/66100487/134759868-984ef90e-53a6-4c79-ae43-cf6949257aac.png)
 
 
 Order.java에서 Configmap에서 설정한 value를 읽어오도록 구현
+
 ![image](https://user-images.githubusercontent.com/66100487/134759876-3a36a70c-53cf-4d63-b975-5f79e90cfb91.png)
 
 ![image](https://user-images.githubusercontent.com/66100487/134759879-a8681f0a-fb0b-4885-8837-15d002db683c.png)
 
 ## PersistentVolume & PersistentVolumeClaim
 deployment.yml 내 Pod/ PersistentVolumeClaim 추가
+
 ![image](https://user-images.githubusercontent.com/66100487/134759889-934e746c-69fd-41ea-bfd9-a40833bae9b8.png)
 
 PersistentVolume 추가하지 않을 경우 상단과 같이 Pending 상태 유지
+
 ![image](https://user-images.githubusercontent.com/66100487/134759897-96a75433-a168-4621-ad58-f3e801fb2567.png)
 
 PersistentVolume 추가
+
 ![image](https://user-images.githubusercontent.com/66100487/134759905-0d8e2624-b62e-4c70-a770-665d29f68098.png)
 
 Pod/ PersistentVolumeClaim 활성화
+
 ![image](https://user-images.githubusercontent.com/66100487/134759912-077e1eab-7e6f-405b-ad1e-a94b2f2702ff.png)
+
 
 ![image](https://user-images.githubusercontent.com/66100487/134759915-ad98ec0b-1373-41db-b707-b57b24485be5.png)
 
