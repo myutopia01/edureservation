@@ -154,40 +154,9 @@ mvn spring-boot:run
 - 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다
 - order 마이크로 서비스
 
-```
-package edureservation;
-
-import javax.persistence.*;
-import org.springframework.beans.BeanUtils;
-import java.util.List;
-import java.util.Date;
-
-@Entity
-@Table(name="Order_table")
-public class Order {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-    private Long orderId;
-    private Long customerId;
-    private Long eduNo;
-    private Long cardNo;
-    private Integer guest;
-    private String status;
-
-    @PostPersist
-    public void onPostPersist() {
-        Ordered ordered = new Ordered();
-        BeanUtils.copyProperties(this, ordered);
-        ordered.setStatus("Ordered");
-        ordered.publishAfterCommit();
-        edureservation.external.Pay pay = new edureservation.external.Pay();
-        pay.setCardNo(this.cardNo);
-        pay.setCustomerId(this.customerId);
-        pay.setOrderId(this.orderId);
+![image](https://user-images.githubusercontent.com/66100487/136828589-18e24117-5ff5-4210-b4c8-39882305e36c.png)
 
 
-```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
 package edureservation;
