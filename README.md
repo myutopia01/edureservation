@@ -57,7 +57,7 @@
 
 
 ## Event Storming 결과
-* MSAEz 로 모델링한 이벤트스토밍 결과:  http://www.msaez.io/#/storming/M6lvbk0YRhRY9U77UJGeBaQwXez2/140f28e7200384b3b96fef84b3ddacd7
+* MSAEz 로 모델링한 이벤트스토밍 결과
  ![image](https://user-images.githubusercontent.com/66100487/134434695-88eab785-c851-4481-a9e4-a73ac9c868e9.png)
 
 
